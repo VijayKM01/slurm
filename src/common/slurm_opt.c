@@ -1814,8 +1814,7 @@ static int arg_set_gpu_freq(slurm_opt_t *opt, const char *arg)
 	opt->gpu_freq = xstrdup(arg);
 	xstrfmtcat(opt->tres_freq, "gpu:%s", opt->gpu_freq);
 	if (tres_freq_verify_cmdline(opt->tres_freq)) {
-		error("Invalid --tres-freq argument: %s",
-		      opt->tres_freq);
+		error("Invalid --gpu-freq argument: %s", opt->tres_freq);
 		exit(1);
 	}
 
@@ -1836,8 +1835,7 @@ static int arg_set_data_gpu_freq(slurm_opt_t *opt, const data_t *arg,
 		xstrfmtcat(opt->tres_freq, "gpu:%s", opt->gpu_freq);
 		if (tres_freq_verify_cmdline(opt->tres_freq)) {
 			rc = SLURM_ERROR;
-			ADD_DATA_ERROR("Invalid --tres-freq argument",
-				       rc);
+			ADD_DATA_ERROR("Invalid --gpu-freq argument", rc);
 			xfree(opt->gpu_freq);
 			xfree(opt->tres_freq);
 		}
