@@ -463,13 +463,21 @@ proc test_mem_per_gpu {} {
 	}
 }
 
+log_info "Testing --gpu-bind"
 test_gpu_bind
+log_info "Testing --gpu-freq"
 test_gpu_freq
+log_info "Testing --cpus-per-gpu"
 test_cpus_per_gpu
+log_info "Testing --cpus-per-job"
 test_gpus_per_job
+log_info "Testing --gpus-per-node"
 test_gpus_per_node
+log_info "Testing --gpus-per-socket"
 test_gpus_per_socket
+log_info "Testing --gpus-per-task"
 test_gpus_per_task
+log_info "Testing --mem-per-gpu"
 test_mem_per_gpu
 
 if {$exit_code} {
