@@ -27,6 +27,7 @@
 source ./globals
 
 set test_id      "38.18"
+set exit_code    0
 
 print_header $test_id
 
@@ -51,9 +52,8 @@ proc submit_job {cmd expected_error} {
 			exp_continue
 		}
 		timeout {
-			log_error "command not responding"
 			slow_kill $cmd_pid
-			end_it 1
+			fail "command not responding"
 		}
 		eof {
 			wait
@@ -61,12 +61,10 @@ proc submit_job {cmd expected_error} {
 	}
 	if {$expected_error ne "noerror"} {
 		if {$err_match != 1} {
-			log_error "didn't get expected error ($expected_error)"
-			end_it 1
+			fail "didn't get expected error ($expected_error)"
 		}
 	} elseif {!$job_id} {
-		log_error "didn't get a job_id"
-		end_it 1
+		fail "didn't get a job_id"
 	}
 
 	return $job_id
@@ -84,24 +82,15 @@ proc scontrol {job_id grep re} {
 			exp_continue
 		}
 		timeout {
-			log_error "scontrol not responding"
-			end_it 1
+			fail "scontrol not responding"
 		}
 		eof {
 			wait
 		}
 	}
 	if {$matches != 1 } {
-		log_error "Didn't match $re ($matches != 1)"
-		end_it 1
+		fail "Didn't match $re ($matches != 1)"
 	}
-}
-
-proc end_it { exit_code } {
-	if {$exit_code != 0} {
-		fail "Test failed due to previous errors (\$exit_code = $exit_code)"
-	}
-	pass
 }
 
 proc test_gpu_bind {} {
@@ -483,4 +472,7 @@ test_gpus_per_socket
 test_gpus_per_task
 test_mem_per_gpu
 
-end_it 0
+if {$exit_code} {
+	fail "Test failed due to previous errors (\$exit_code = $exit_code)"
+}
+
