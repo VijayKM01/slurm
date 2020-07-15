@@ -68,7 +68,7 @@ proc submit_job {cmd expected_error} {
 	return $job_id
 }
 
-proc scontrol {job_id grep re} {
+proc check_job {job_id grep re} {
 	global bin_bash bin_grep scontrol
 
 	set matches 0
@@ -145,7 +145,7 @@ proc test_gpu_bind {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresBind" $re
+			check_job $job_id "^JobId\\|TresBind" $re
 			cancel_job $job_id
 		}
 	}
@@ -207,7 +207,7 @@ proc test_gpu_freq {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresFreq" $re
+			check_job $job_id "^JobId\\|TresFreq" $re
 			cancel_job $job_id
 		}
 	}
@@ -242,7 +242,7 @@ proc test_cpus_per_gpu {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|CpusPerTres" $re
+			check_job $job_id "^JobId\\|CpusPerTres" $re
 			cancel_job $job_id
 		}
 	}
@@ -278,7 +278,7 @@ proc test_gpus_per_job {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresPerJob" $re
+			check_job $job_id "^JobId\\|TresPerJob" $re
 			cancel_job $job_id
 		}
 	}
@@ -323,7 +323,7 @@ proc test_gpus_per_node {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresPerNode" $re
+			check_job $job_id "^JobId\\|TresPerNode" $re
 			cancel_job $job_id
 		}
 	}
@@ -383,7 +383,7 @@ proc test_gpus_per_socket {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresPerSocket" $re
+			check_job $job_id "^JobId\\|TresPerSocket" $re
 			cancel_job $job_id
 		}
 	}
@@ -418,7 +418,7 @@ proc test_gpus_per_task {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|TresPerTask" $re
+			check_job $job_id "^JobId\\|TresPerTask" $re
 			cancel_job $job_id
 		}
 	}
@@ -453,7 +453,7 @@ proc test_mem_per_gpu {} {
 			}
 
 			set job_id [submit_job $run "noerror"]
-			scontrol $job_id "^JobId\\|MemPerTres" $re
+			check_job $job_id "^JobId\\|MemPerTres" $re
 			cancel_job $job_id
 		}
 	}
