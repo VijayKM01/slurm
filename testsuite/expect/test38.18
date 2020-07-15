@@ -43,7 +43,7 @@ proc submit_job_error {cmd expected_error} {
 proc submit_job {cmd} {
 	global number
 
-	if {![regexp "job ($number)" [run_command_output -fail $cmd] matched job_id]} {
+	if {![regexp "job ($number)" [run_command_output $cmd] matched job_id]} {
 		fail "Didn't find jobid"
 	}
 
