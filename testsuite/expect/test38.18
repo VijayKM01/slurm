@@ -60,9 +60,7 @@ proc submit_job {cmd expected_error} {
 		}
 	}
 	if {$expected_error ne "noerror"} {
-		if {$err_match != 1} {
-			fail "didn't get expected error ($expected_error)"
-		}
+		assert_or_fail {$err_match == 1} "Didn't get expected error ($expected_error)"
 	} elseif {!$job_id} {
 		fail "didn't get a job_id"
 	}
@@ -88,9 +86,7 @@ proc scontrol {job_id grep re} {
 			wait
 		}
 	}
-	if {$matches != 1 } {
-		fail "Didn't match $re ($matches != 1)"
-	}
+	assert_or_fail {$matches == 1} "Didn't match $re ($matches != 1)"
 }
 
 proc test_gpu_bind {} {
