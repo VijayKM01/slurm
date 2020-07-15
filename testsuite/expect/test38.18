@@ -36,57 +36,28 @@ if {$gpu_cnt < 2} {
 	skip "This test requires 2 or more GPUs per node in the default partition"
 }
 
-proc submit_job {cmd expected_error} {
+proc submit_job_error {cmd expected_error} {
+	if {![regexp $expected_error [run_command_output $cmd]]} {
+		fail "Didn't match $expected_error"
+	}
+}
+
+proc submit_job {cmd} {
 	global number
 
-	set err_match 0
-	set job_id 0
-
-	set cmd_pid [spawn {*}$cmd]
-	expect {
-		-re "job ($number)" {
-			set job_id $expect_out(1,string)
-		}
-		-re $expected_error {
-			incr err_match
-			exp_continue
-		}
-		timeout {
-			slow_kill $cmd_pid
-			fail "command not responding"
-		}
-		eof {
-			wait
-		}
-	}
-	if {$expected_error ne "noerror"} {
-		assert_or_fail {$err_match == 1} "Didn't get expected error ($expected_error)"
-	} elseif {!$job_id} {
-		fail "didn't get a job_id"
+	if {![regexp "job ($number)" [run_command_output -fail $cmd] matched job_id]} {
+		fail "Didn't find jobid"
 	}
 
 	return $job_id
 }
 
 proc check_job {job_id grep re} {
-	global bin_bash bin_grep scontrol
+	global bin_grep scontrol
 
-	set matches 0
-
-	spawn $bin_bash -c "exec $scontrol show job $job_id | $bin_grep -i '$grep'"
-	expect {
-		-re $re {
-			incr matches
-			exp_continue
-		}
-		timeout {
-			fail "scontrol not responding"
-		}
-		eof {
-			wait
-		}
+	if {![regexp $re [run_command_output "$scontrol show job $job_id | $bin_grep -i '$grep'"]]} {
+		fail "Didn't match $re"
 	}
-	assert_or_fail {$matches == 1} "Didn't match $re ($matches != 1)"
 }
 
 proc test_gpu_bind {} {
@@ -113,7 +84,7 @@ proc test_gpu_bind {} {
 				set run "$salloc $a hostname"
 			}
 
-			submit_job $run $b
+			submit_job_error $run $b
 		}
 	}
 
@@ -144,7 +115,7 @@ proc test_gpu_bind {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresBind" $re
 			cancel_job $job_id
 		}
@@ -175,7 +146,7 @@ proc test_gpu_freq {} {
 				set run "$salloc $a hostname"
 			}
 
-			submit_job $run $b
+			submit_job_error $run $b
 		}
 	}
 
@@ -206,7 +177,7 @@ proc test_gpu_freq {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresFreq" $re
 			cancel_job $job_id
 		}
@@ -241,7 +212,7 @@ proc test_cpus_per_gpu {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|CpusPerTres" $re
 			cancel_job $job_id
 		}
@@ -277,7 +248,7 @@ proc test_gpus_per_job {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresPerJob" $re
 			cancel_job $job_id
 		}
@@ -322,7 +293,7 @@ proc test_gpus_per_node {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresPerNode" $re
 			cancel_job $job_id
 		}
@@ -353,7 +324,7 @@ proc test_gpus_per_socket {} {
 				set run "$salloc $a hostname"
 			}
 
-			submit_job $run $b
+			submit_job_error $run $b
 		}
 	}
 
@@ -382,7 +353,7 @@ proc test_gpus_per_socket {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresPerSocket" $re
 			cancel_job $job_id
 		}
@@ -417,7 +388,7 @@ proc test_gpus_per_task {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|TresPerTask" $re
 			cancel_job $job_id
 		}
@@ -452,7 +423,7 @@ proc test_mem_per_gpu {} {
 				set run "$salloc $a hostname"
 			}
 
-			set job_id [submit_job $run "noerror"]
+			set job_id [submit_job $run]
 			check_job $job_id "^JobId\\|MemPerTres" $re
 			cancel_job $job_id
 		}
